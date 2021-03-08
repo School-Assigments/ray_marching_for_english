@@ -1,10 +1,13 @@
 #include <iostream>
 #include <png++/png.hpp>
+#include <vector>
 
 #include "settings.hpp"
 #include "vec.hpp"
 
 using namespace std;
+
+vector<vector<vec>> bg;
 
 struct material {
     const vec colour;
@@ -73,10 +76,21 @@ vec cast_ray(const vec& ro, const vec& rd, const int depth = 0) {
             reflect_colour * m.mirrow;
         return c;
     }
-    return {0., 1., 1.};
+    double ang = atan2(rd.z, rd.x) + M_PI;
+    return bg[ang/(2*M_PI)*bg.size()][(-rd.y*0.5 + 0.5)*bg[0].size()];
 }
 
 int main() {
+    // load bg
+    png::image<png::rgb_pixel> bg_img;
+    bg_img.read("bg.png");
+    bg = vector(bg_img.get_width(), vector<vec>(bg_img.get_height()));
+    for (size_t x = 0; x < bg_img.get_width(); ++x) {
+        for (size_t y = 0; y < bg_img.get_height(); ++y) {
+            bg[x][y] = {bg_img[y][x].red / 256., bg_img[y][x].green / 256., bg_img[y][x].blue / 256.};
+        }
+    }
+
     png::image<png::rgb_pixel> canvas(settings::IMAGE_WIDTH, settings::IMAGE_HEIGHT);
     for (int x = 0; x < settings::IMAGE_WIDTH; ++x) {
         for (int y = 0; y < settings::IMAGE_HEIGHT; ++y) {
