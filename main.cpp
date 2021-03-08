@@ -7,9 +7,7 @@
 using namespace std;
 
 struct material {
-    material(const double& a, const double& d,
-            const double& s, const double& al, const double& m)
-        : ambient(a), diffuse(d), specular(s), alpha(al), mirrow(m) {}
+    const vec colour;
     const double ambient, diffuse, specular, alpha, mirrow;
 };
 
@@ -24,9 +22,9 @@ bool operator<(const map_val& lhs, const map_val& rhs) {
 
 map_val map(const vec& p) {
     map_val d1 = {dist(p, vec(0, 0, 2)) - 1,
-                  {0.4, 0.7, 0.1, 100, 0.0}};
+                  {{1., 0., 0.}, 0.4, 0.9, 0.1, 100, 0.0}};
     map_val d2 = {dist(p, vec(-2, -0.3, 3)) - 0.5,
-                  {0.0, 0.3, 1., 50, 0.7}};
+                  {{1., 1., 1.}, 0.0, 0.3, 1., 50, 0.7}};
     return min(d1, d2);
 }
 
@@ -60,10 +58,11 @@ vec cast_ray(const vec& ro, const vec& rd, const int depth = 0) {
         vec p = ro + rd * t;
         vec norm = calc_normal(p);
 
-        vec c = {1., 1., 1.};
         static const vec light_dir = normalize({2, 2, -1});
+
         const material m = map(p).m;
         const double shadow = marching(p + 0.0001*norm, light_dir) > settings::marching::ZFAR ? 1. : 0.3;
+        vec c = m.colour;
         vec reflect_colour = {0, 0, 0};
         if (m.mirrow > 0 && depth < settings::marching::MAX_DEPTH) {
             reflect_colour = cast_ray(p + 0.0001*norm, reflect(rd, norm), depth + 1);
