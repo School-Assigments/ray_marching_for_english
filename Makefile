@@ -3,11 +3,14 @@ LDFLAGS=-std=c++20 -fsanitize=address,undefined `libpng-config --ldflags`
 
 all: main.out
 
-main.out: main.o
-	g++ main.o $(LDFLAGS) -o main.out 
+main.out: main.o vec.o
+	g++ main.o vec.o $(LDFLAGS) -o main.out 
 
-main.o: main.cpp settings.hpp vec.hpp
+main.o: main.cpp settings.hpp
 	g++ -c main.cpp -o main.o $(CFLAGS)
+
+vec.o: vec.cpp vec.hpp
+	g++ -c vec.cpp -o vec.o $(CFLAGS)
 
 run: main.out
 	./main.out
