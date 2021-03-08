@@ -59,3 +59,9 @@ double dot(const vec& lhs, const vec& rhs) {
 vec reflect(const vec& lhs, const vec& rhs) {
     return lhs - 2 * rhs * dot(lhs, rhs);
 }
+
+vec cross(const vec& lhs, const vec& rhs) {
+    return {lhs.y * rhs.z - lhs.z * rhs.y,
+            lhs.z * rhs.x - lhs.x * rhs.z,
+            lhs.x * rhs.y - lhs.y * rhs.x};
+}

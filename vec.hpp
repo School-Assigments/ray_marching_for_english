@@ -30,5 +30,6 @@ double dot(const vec& lhs, const vec& rhs);
 
 vec normalize(const vec& v);
 vec reflect(const vec& lhs, const vec& rhs);
+vec cross(const vec& lhs, const vec& rhs);
 
 #endif

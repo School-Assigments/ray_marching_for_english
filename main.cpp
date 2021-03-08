@@ -23,7 +23,7 @@ bool operator<(const map_val& lhs, const map_val& rhs) {
     return lhs.d < rhs.d;
 }
 
-float sdfsphere(const vec& p, const double& r) {
+double sdfsphere(const vec& p, const double& r) {
   return len(p) - r;
 }
 
@@ -100,6 +100,10 @@ int main() {
         }
     }
 
+    vec ff = normalize(settings::camera::target - settings::camera::pos);
+    vec rr = cross(ff, {0., 1., 0.});
+    vec uu = cross(rr, ff);
+
     png::image<png::rgb_pixel> canvas(settings::IMAGE_WIDTH, settings::IMAGE_HEIGHT);
     for (int x = 0; x < settings::IMAGE_WIDTH; ++x) {
         for (int y = 0; y < settings::IMAGE_HEIGHT; ++y) {
@@ -107,8 +111,8 @@ int main() {
             double u = (x -  settings::IMAGE_WIDTH/2.) / (MIN_RES/2.);
             double v = (y - settings::IMAGE_HEIGHT/2.) / (MIN_RES/2.);
 
-            vec ro = {0, 0, 0};
-            vec rd = normalize({u, -v, settings::marching::ZNEAR});
+            vec ro = settings::camera::pos;
+            vec rd = normalize(u * rr - v * uu + settings::marching::ZNEAR * ff);
 
             vec c = cast_ray(ro, rd);
             canvas.set_pixel(x, y, png::rgb_pixel(max(0., min(1., c.x)) * 255,
