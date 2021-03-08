@@ -29,6 +29,10 @@ vec operator+(const vec& lhs, const vec& rhs) {
     return {lhs.x + rhs.x, lhs.y + rhs.y, lhs.z + rhs.z};
 }
 
+vec operator+(const vec& lhs, const double& rhs) {
+    return {lhs.x + rhs, lhs.y + rhs, lhs.z + rhs};
+}
+
 vec operator-(const vec& lhs, const vec& rhs) {
     return {lhs.x - rhs.x, lhs.y - rhs.y, lhs.z - rhs.z};
 }

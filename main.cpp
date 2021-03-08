@@ -12,20 +12,30 @@ struct material {
         : ambient(a), diffuse(d), specular(s), alpha(al), mirrow(m) {}
     const double ambient, diffuse, specular, alpha, mirrow;
 };
-material defaultMaterial(0.4, 0.5, 0.5, 100, 0.7);
 
-double map(const vec& p) {
-    double d1 = dist(p, vec(0, 0, 2)) - 1;
-    double d2 = dist(p, vec(-2, -0.3, 3)) - 0.5;
+struct map_val {
+    const double d;
+    const material m;
+};
+
+bool operator<(const map_val& lhs, const map_val& rhs) {
+    return lhs.d < rhs.d;
+}
+
+map_val map(const vec& p) {
+    map_val d1 = {dist(p, vec(0, 0, 2)) - 1,
+                  {0.4, 0.7, 0.1, 100, 0.0}};
+    map_val d2 = {dist(p, vec(-2, -0.3, 3)) - 0.5,
+                  {0.0, 0.3, 1., 50, 0.7}};
     return min(d1, d2);
 }
 
 vec calc_normal(const vec& p) {
     static const double eps = 1e-5;
-    double d = map(p);
-    double nx = map(p + vec(eps, 0, 0)) - d;
-    double ny = map(p + vec(0, eps, 0)) - d;
-    double nz = map(p + vec(0, 0, eps)) - d;
+    double d = map(p).d;
+    double nx = map(p + vec(eps, 0, 0)).d - d;
+    double ny = map(p + vec(0, eps, 0)).d - d;
+    double nz = map(p + vec(0, 0, eps)).d - d;
     return normalize(vec(nx, ny, nz));
 }
 
@@ -34,7 +44,7 @@ double marching(const vec& ro, const vec& rd) {
     for (int i = 0; i < settings::marching::MAX_ITER; ++i) {
         vec p = ro + t * rd;
 
-        double h = map(p);
+        double h = map(p).d;
         if (abs(h) < settings::marching::COLL_DIST ||
             t > settings::marching::ZFAR) {
             break;
@@ -52,15 +62,16 @@ vec cast_ray(const vec& ro, const vec& rd, const int depth = 0) {
 
         vec c = {1., 1., 1.};
         static const vec light_dir = normalize({2, 2, -1});
-        material& m = defaultMaterial;
-        const double shadow = marching(p + 0.1*norm, light_dir) > settings::marching::ZFAR ? 1. : 0.3;
-        c = c * (m.ambient +
-                 m.diffuse * dot(norm, light_dir) +
-                 m.specular * pow(dot(reflect(light_dir, norm), -rd), m.alpha)) * shadow;
-        if (depth < settings::marching::MAX_DEPTH) {
-            vec reflect_colour = cast_ray(p + 0.1*norm, reflect(rd, norm), depth + 1);
-            c = c * (1 - m.mirrow) + reflect_colour * m.mirrow;
+        const material m = map(p).m;
+        const double shadow = marching(p + 0.0001*norm, light_dir) > settings::marching::ZFAR ? 1. : 0.3;
+        vec reflect_colour = {0, 0, 0};
+        if (m.mirrow > 0 && depth < settings::marching::MAX_DEPTH) {
+            reflect_colour = cast_ray(p + 0.0001*norm, reflect(rd, norm), depth + 1);
         }
+        c = c * (m.ambient +
+                 shadow * m.diffuse * dot(norm, light_dir)) +
+            shadow * m.specular * pow(dot(reflect(light_dir, norm), -rd), m.alpha) +
+            reflect_colour * m.mirrow;
         return c;
     }
     return {0., 1., 1.};
