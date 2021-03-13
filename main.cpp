@@ -72,8 +72,8 @@ int main(int argc, char** argv) {
     }
 
     vec ff = normalize(settings::camera::target - settings::camera::pos);
-    vec rr = cross(ff, {0., 1., 0.});
-    vec uu = cross(rr, ff);
+    vec rr = normalize(cross(ff, {0., 1., 0.}));
+    vec uu = normalize(cross(rr, ff));
 
     png::image<png::rgb_pixel> canvas(settings::IMAGE_WIDTH, settings::IMAGE_HEIGHT);
     for (int x = 0; x < settings::IMAGE_WIDTH; ++x) {
