@@ -15,6 +15,8 @@ vec.o: vec.cpp vec.hpp
 map.o: map.cpp map.hpp
 	g++ -c map.cpp -o map.o $(CFLAGS)
 
-run: main.out
+output.png: main.out
 	./main.out
+
+run: output.png
 	feh output.png
