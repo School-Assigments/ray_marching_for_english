@@ -57,7 +57,7 @@ vec cast_ray(const vec& ro, const vec& rd, const int depth = 0) {
         return c;
     }
     double ang = atan2(rd.z, rd.x) + M_PI;
-    return bg[ang/(2*M_PI)*bg.size()][(-rd.y*0.5 + 0.5)*bg[0].size()];
+    return bg[ang/(2*M_PI)*(bg.size() - 1)][(-rd.y*0.5 + 0.5)*(bg[0].size() - 1)];
 }
 
 int main() {
