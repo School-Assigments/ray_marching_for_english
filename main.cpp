@@ -60,7 +60,7 @@ vec cast_ray(const vec& ro, const vec& rd, const int depth = 0) {
     return bg[ang/(2*M_PI)*(bg.size() - 1)][(-rd.y*0.5 + 0.5)*(bg[0].size() - 1)];
 }
 
-int main() {
+int main(int argc, char** argv) {
     // load bg
     png::image<png::rgb_pixel> bg_img;
     bg_img.read("bg.png");
@@ -91,5 +91,5 @@ int main() {
                                                   max(0., min(1., c.z)) * 255));
         }
     }
-    canvas.write("output.png");
+    canvas.write(argc < 2 ? "output.png" : argv[1]);
 }

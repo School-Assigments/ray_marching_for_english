@@ -1,3 +1,5 @@
+FILENAME=output.png
+
 CFLAGS=-std=c++20 -fsanitize=address,undefined -march=native -Wall -Wextra -Wpedantic -O3 -g0 `libpng-config --cflags`
 LDFLAGS=-std=c++20 -fsanitize=address,undefined `libpng-config --ldflags`
 
@@ -15,8 +17,8 @@ vec.o: vec.cpp vec.hpp
 map.o: map.cpp map.hpp
 	g++ -c map.cpp -o map.o $(CFLAGS)
 
-output.png: main.out
-	./main.out
+$(FILENAME): main.out
+	./main.out $(FILENAME)
 
-run: output.png
-	feh output.png
+run: $(FILENAME)
+	feh $(FILENAME)
