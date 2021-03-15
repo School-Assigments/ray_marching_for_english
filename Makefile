@@ -21,4 +21,4 @@ $(FILENAME): main.out
 	./main.out $(FILENAME)
 
 run: $(FILENAME)
-	feh $(FILENAME)
+	feh -Z $(FILENAME)
