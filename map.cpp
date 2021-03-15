@@ -56,11 +56,17 @@ double subst(const double& d1, const vector<double>& dist) {
     return subst(d1, unite(dist));
 }
 
+double sunite(const double d1, const double d2, const double k) {
+    double h = max(0., min(1., (d2 - d1) / k * 0.5 + 0.5));
+    return (d2 * (1. - h) + d1 * h) - k * h * (1. - h);
+}
+
 map_val map(const vec& p) {
-    static const material red = {{1., 0., 0.}, 0.4, 0.9, 0.1, 100, 0.0};
     static const material mirror = {{1., 1., 1.}, 0.0, 0.3, 1., 50, 0.7};
-    // const map_val d1 = {sdfbox(p - vec{0., 0., 8.}, {5., 5., 1.}), mirror};
-    double d;
+    static const material red = {{1., 0., 0.}, 0.3, 0.7, 0., 1, 0.0};
+    static const material green = {{0., 1., 0.}, 0.7, 0.2, 0.3, 1, 0.0};
+    static const material steel = {{0.8, 0.8, 0.85}, 0.0, 0.4, 0.8, 20, 0.4};
+    // static const material steel = {{0.8, 0.8, 0.81}, 0.2, 0.2, 1., 50, 0.1};
     const double cyl1 = subst(sdfycylinder(p, 1.), {p.y + 1.3, -(p.y - 2.)});
     const double sph1 = sdfsphere(p - vec{0.5, 2.7, 0.3}, 1.3);
     const double box1 = sdfbox(p - vec{-3.5, 0., 1.}, {5., 1., 1.});
@@ -68,6 +74,10 @@ map_val map(const vec& p) {
     const double sph2 = sdfsphere(p - vec{0.5, -1.3, -0.5}, 0.7);
     const double cyl3 = subst(sdfzcylinder(p - vec{0., 3.0, 0.3}, 2.), {p.z - 0.2, -(p.z - 0.6)});
     const double cyl4 = subst(sdfxcylinder(p - vec{0., 3.0, 0.3}, 2.), {p.x - 0.2, -(p.x - 0.6)});
-    d = subst(unite({subst(sph1, cyl3), box1, cyl2, cyl1}), sph2);
-    return min(map_val{d, red}, map_val{cyl4, mirror});
+    const double sph3 = sdfsphere(p - vec{2., 8., 6.}, 2.);
+    const double sph4 = sdfsphere(p - vec{-5., 4., -3.}, 2.);
+    return min({map_val{subst(sunite(cyl1, box1, 1.), {sph2, cyl3}), red},
+                map_val{unite({cyl4, sph3, sph4}), mirror},
+                map_val{sph1, steel},
+                map_val{cyl2, green}});
 }
